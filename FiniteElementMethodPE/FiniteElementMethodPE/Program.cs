@@ -14,7 +14,12 @@ namespace FiniteElementMethodPE
             //ToDo
             // тестуємо наші класи
         }
-        // TODO
-        // Визначити функцію правої частини, тобто f
+
+        // f при u* = xy^2(1-x)(1-y)
+        public static double f(double x, double y)
+        {
+            return 2 * y * y * y - 2 * y * y + 2 * x + 6 * x * x * y - 2 * x * x - 6 * x * y;
+        }
+
     }
 }
