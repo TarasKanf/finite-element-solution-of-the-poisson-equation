@@ -9,17 +9,20 @@ namespace FiniteElementMethodPE.FiniteElements
 {    
     class FiniteElementPuassonESolver
     {
-        const int Size = 9;
+        private const int AxisPoints = 3;
+        const int AllPointsNumber = AxisPoints*AxisPoints;
         private double[,] A; // загальна матриця
         private double[,] B; // права частина
-        private double[,] Ke = new double[Size, Size];
-        private double[,] Me = new double[Size, Size];
-        private double[] Qe = new double[Size];
+        private double[,] Ke = new double[AllPointsNumber, AllPointsNumber];
+        private double[,] Me = new double[AllPointsNumber, AllPointsNumber];
+        private double[] Qe = new double[AllPointsNumber];
         private double h;
         private int N;
         private Func<double, double, double> f;
         // межі області
-        private double a1, b1, a2, b2;
+        private readonly double a1, b1, a2, b2;
+
+        private double[] tempVector = new double[AllPointsNumber];
 
         //область має бути квадратна
         public FiniteElementPuassonESolver(Func<double,double,double> f, double a1,double b1, double a2,double b2)
@@ -49,8 +52,27 @@ namespace FiniteElementMethodPE.FiniteElements
         }
         private void FillQe(ref double[] Qe, double x1a, double x2a)
         {
-            //TODO
-            // заповнюємо вектор Qe для кокретної області [x1a,x1b]x[x2a,x2b]
+            int index = 0;
+            for (int i = 0; i < AxisPoints; i++)
+            {
+                for (int j = 0; j < AxisPoints; j++)
+                {
+                    tempVector[index] = f(x1a + j*h/2.0, x2a + i*h/2.0);
+                    index ++;
+                }
+            }
+            // множення матриці на вектор
+            FillMe(ref Me,x1a,x2a);
+            double sum = 0;
+            for (int i = 0; i < AllPointsNumber; i++)
+            {
+                sum = 0;
+                for (int j = 0; j < AllPointsNumber; j++)
+                {
+                    sum += Me[i, j]*tempVector[j];
+                }
+                Qe[i] = sum;
+            }
         }
         private void FillMe(ref double[,] Me, double x1a, double x2a)
         {
@@ -78,6 +100,5 @@ namespace FiniteElementMethodPE.FiniteElements
             }
             return sum/dob;
         }
-
     }
 }
