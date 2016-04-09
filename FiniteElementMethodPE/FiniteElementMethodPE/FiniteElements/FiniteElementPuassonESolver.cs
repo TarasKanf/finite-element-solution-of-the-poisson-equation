@@ -76,18 +76,32 @@ namespace FiniteElementMethodPE.FiniteElements
         }
         private void FillMe(ref double[,] Me, double x1a, double x2a)
         {
-            //TODO
             // заповнюємо матрицю Me для кокретної області [x1a,x1b]x[x2a,x2b]
+            double E = 0.0005;
+            for (int i = 0; i < AllPointsNumber; i++)
+            {
+                for (int j = 0; j < AllPointsNumber; j++)
+                {
+                    int sigma0 = i / 3;
+                    int sigma1 = j / 3;
+                    int sigma2 = i % 3;
+                    int sigma3 = j % 3;
+                    Core core = new Core(LagrangeFunc, LagrangeFunc);
+                    core.SetParams(sigma0, x1a, sigma1, x1a);
+                    Me[i, j] = Integral.CalculateWithHauseMethod(core, x1a, x1a + h, E, 5);
+                    core.SetParams(sigma2, x2a, sigma3, x2a);
+                    Me[i,j] *= Integral.CalculateWithHauseMethod(core, x2a, x2a + h, E, 5);
+                }
+            }
         }
-
-        // TODO
+                
         // Прописати всі потрібні базисні фукнції l і їх похідні
-        private double LagrangeFunc(double x,int i)
+        private double LagrangeFunc(double x,int i, double xa)
         {
             //TODO
             return 0;
         }
-        private double DLanrangeFunc(double x,int i,double xa) // похідна функції Лагранжа
+        private double DLanrangeFunc(double x,int i, double xa) // похідна функції Лагранжа
         {
             double sum = 0;
             double dob = 1.0;
