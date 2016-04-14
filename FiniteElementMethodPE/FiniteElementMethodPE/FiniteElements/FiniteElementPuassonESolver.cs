@@ -33,6 +33,7 @@ namespace FiniteElementMethodPE.FiniteElements
             this.b2 = b2;
             this.f = f;
         }
+
         public double[] Solve(int n)
         {
             N = n;
@@ -46,10 +47,31 @@ namespace FiniteElementMethodPE.FiniteElements
         }
         // нижче використовуйте клас Integral з Helpers щоб обчислити інтеграли
         private void FillKe(ref double[,] Ke, double x1a, double x2a) // розмірність матриці Ke 9x9
-        {
-            //TODO 
+        { 
             // заповнюємо матрицю Ke для кокретної області [x1a,x1b]x[x2a,x2b]
+            double E = 0.0005;
+            for (int i = 0; i < AllPointsNumber; i++)
+            {
+                for (int j = 0; j < AllPointsNumber; j++)
+                {
+                    int sigma0 = i / 3;
+                    int sigma1 = j / 3;
+                    int sigma2 = i % 3;
+                    int sigma3 = j % 3;
+					Core core = new Core(LagrangeFunc, LagrangeFunc);
+					Core core1 = new Core(DLanrangeFunc, DLanrangeFunc);
+                    core1.SetParams(sigma0, x1a, sigma1, x1a);
+                    Ke[i, j] = Integral.CalculateWithHauseMethod(core1, x1a, x1a + h, E, 5);
+                    core.SetParams(sigma2, x2a, sigma3, x2a);
+                    Ke[i,j] *= Integral.CalculateWithHauseMethod(core, x2a, x2a + h, E, 5);
+					core.SetParams(sigma0, x1a, sigma1, x1a);
+					Ke[i, j] += Integral.CalculateWithHauseMethod(core, x1a, x1a + h, E, 5);
+					core1.SetParams(sigma2, x2a, sigma3, x2a);
+					Ke[i, j] *= Integral.CalculateWithHauseMethod(core1, x2a, x2a + h, E, 5);
+                }
+            }
         }
+
         private void FillQe(ref double[] Qe, double x1a, double x2a)
         {
             int index = 0;
@@ -74,6 +96,7 @@ namespace FiniteElementMethodPE.FiniteElements
                 Qe[i] = sum;
             }
         }
+
         private void FillMe(ref double[,] Me, double x1a, double x2a)
         {
             // заповнюємо матрицю Me для кокретної області [x1a,x1b]x[x2a,x2b]
@@ -96,12 +119,21 @@ namespace FiniteElementMethodPE.FiniteElements
         }
                 
         // Прописати всі потрібні базисні фукнції l і їх похідні
-        private double LagrangeFunc(double x,int i, double xa)
+        private double LagrangeFunc(double x, int i, double xa)
         {
-            //TODO
-            return 0;
+			double chus = 1.0;
+			double dob = 1.0;
+			if(x < xa || x > xa + h) return 0;
+			for(var j = 0 ; j < 3 ; j++)
+			{
+				if(i == j) continue;
+				chus *= x - (xa + h * j / 2.0);
+				dob *= (i - j) * h / 2.0;
+			}
+			return chus / dob;
         }
-        private double DLanrangeFunc(double x,int i, double xa) // похідна функції Лагранжа
+
+        private double DLanrangeFunc(double x, int i, double xa) // похідна функції Лагранжа
         {
             double sum = 0;
             double dob = 1.0;
