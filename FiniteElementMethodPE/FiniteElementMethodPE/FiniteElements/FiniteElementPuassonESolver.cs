@@ -12,7 +12,7 @@ namespace FiniteElementMethodPE.FiniteElements
         private const int AxisPoints = 3;
         const int AllPointsNumber = AxisPoints*AxisPoints;
         private double[,] A; // загальна матриця
-        private double[,] B; // права частина
+        private double[] B; // права частина
         private double[,] Ke = new double[AllPointsNumber, AllPointsNumber];
         private double[,] Me = new double[AllPointsNumber, AllPointsNumber];
         private double[] Qe = new double[AllPointsNumber];
@@ -43,7 +43,43 @@ namespace FiniteElementMethodPE.FiniteElements
             // будуємо загальну матрицю A на основу малих 9х9 матриць Ke
             // будуємо праву частину на основі Qe
             // розвязуємо СЛАР
-            return new double[n * n];
+
+            int sizeofsystem = (2 * n + 1) * (2 * n + 1);
+            A = new double[sizeofsystem, sizeofsystem];
+            B = new double[sizeofsystem];
+            for (int i = 0; i < sizeofsystem; i++)
+            {
+                for (int j = 0; j < sizeofsystem; j++)
+                {
+                    A[i, j] = 0;
+                }
+                B[i] = 0;
+            }
+            for (int p = 0; p < n * n; p++)
+            {
+                int sigma0 = p / 3;
+                int sigma1 = p % 3;
+                int l = sigma0 * 2 * (2 * n + 1) + 2 * sigma1;
+                FillKe(ref Ke, 2 * sigma1, sigma0 * 2 * (2 * n + 1));
+                FillQe(ref Qe, 2 * sigma1, sigma0 * 2 * (2 * n + 1));
+                for (int i = 0; i < AllPointsNumber; i++)
+                {
+                    int sigma2 = i / 3;
+                    int sigma3 = i % 3;
+                    for (int j = 0; j < AllPointsNumber; j++)
+                    {
+                        int sigma4 = j / 3;
+                        int sigma5 = j % 3;
+                        A[l + sigma2 * (2 * n + 1) + sigma3, l + sigma4 * (2 * n + 1) + sigma5] += Ke[i, j];
+                    }
+                    B[l + sigma2 * (2 * n + 1) + sigma3] += Qe[i];
+                }
+            }
+            double E = 0.0005;
+            double[] result = new double[sizeofsystem];
+            result = SystemOfLinearEquations.JacobiMethodSolving(A, B, E);
+
+            return result;
         }
         // нижче використовуйте клас Integral з Helpers щоб обчислити інтеграли
         private void FillKe(ref double[,] Ke, double x1a, double x2a) // розмірність матриці Ke 9x9
