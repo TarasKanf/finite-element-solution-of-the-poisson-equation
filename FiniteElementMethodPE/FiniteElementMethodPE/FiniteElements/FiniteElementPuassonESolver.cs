@@ -60,14 +60,17 @@ namespace FiniteElementMethodPE.FiniteElements
                     int sigma3 = j % 3;
 					Core core = new Core(LagrangeFunc, LagrangeFunc);
 					Core core1 = new Core(DLanrangeFunc, DLanrangeFunc);
+                    double temp = 0;
                     core1.SetParams(sigma0, x1a, sigma1, x1a);
-                    Ke[i, j] = Integral.CalculateWithHauseMethod(core1, x1a, x1a + h, E, 5);
+                    temp = Integral.CalculateWithHauseMethod(core1, x1a, x1a + h, E, 5);
                     core.SetParams(sigma2, x2a, sigma3, x2a);
-                    Ke[i,j] *= Integral.CalculateWithHauseMethod(core, x2a, x2a + h, E, 5);
+                    temp *= Integral.CalculateWithHauseMethod(core, x2a, x2a + h, E, 5);
+                    Ke[i, j] = temp;
 					core.SetParams(sigma0, x1a, sigma1, x1a);
-					Ke[i, j] += Integral.CalculateWithHauseMethod(core, x1a, x1a + h, E, 5);
+					temp = Integral.CalculateWithHauseMethod(core, x1a, x1a + h, E, 5);
 					core1.SetParams(sigma2, x2a, sigma3, x2a);
-					Ke[i, j] *= Integral.CalculateWithHauseMethod(core1, x2a, x2a + h, E, 5);
+					temp *= Integral.CalculateWithHauseMethod(core1, x2a, x2a + h, E, 5);
+                    Ke[i, j] = temp;
                 }
             }
         }
