@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using FiniteElementMethodPE.Helpers;
 
 namespace FiniteElementMethodPE.FiniteElements
@@ -12,7 +8,7 @@ namespace FiniteElementMethodPE.FiniteElements
         private const int AxisPoints = 3;
         const int AllPointsNumber = AxisPoints*AxisPoints;
         private double[,] A; // загальна матриця
-        private double[,] B; // права частина
+        private double[] B; // права частина
         private double[,] Ke = new double[AllPointsNumber, AllPointsNumber];
         private double[,] Me = new double[AllPointsNumber, AllPointsNumber];
         private double[] Qe = new double[AllPointsNumber];
@@ -38,15 +34,51 @@ namespace FiniteElementMethodPE.FiniteElements
         {
             N = n;
             h = (b1 - a1)/N;
-            if(Math.Abs(h - (b2 -a2)/N) < 0.001) throw new Exception("Must be square");
-            //TODO
-            // будуємо загальну матрицю A на основу малих 9х9 матриць Ke
-            // будуємо праву частину на основі Qe
-            // розвязуємо СЛАР
-            return new double[n * n];
+            if(Math.Abs(h - (b2 -a2)/N) > 0.001) throw new Exception("Must be square");
+            int sizeofsystem = (2 * n + 1) * (2 * n + 1);
+            A = new double[sizeofsystem, sizeofsystem];
+            B = new double[sizeofsystem];
+            for (int i = 0; i < sizeofsystem; i++)
+            {
+                for (int j = 0; j < sizeofsystem; j++)
+                {
+                    A[i, j] = 0;
+                }
+                B[i] = 0;
+            }
+            for (int p = 0; p < n * n; p++)
+            {
+                int sigma0 = p / 3;
+                int sigma1 = p % 3;
+                double x1a = a1 + sigma1*h;
+                double x2a = a2 + sigma0*h;
+                int l = sigma0 * 2 * (2 * n + 1) + 2 * sigma1;
+                FillKe(ref Ke, x1a, x2a);
+                FillQe(ref Qe, x1a, x2a);
+                for (int i = 0; i < AllPointsNumber; i++)
+                {
+                    int sigma2 = (i+1) / 3;
+                    int sigma3 = (i+1) % 3;
+                    for (int j = 0; j < AllPointsNumber; j++)
+                    {
+                        int sigma4 = (j) / 3;
+                        int sigma5 = (j) % 3;
+                        A[l + sigma2 * (2 * n + 1) + sigma3, l + sigma4 * (2 * n + 1) + sigma5] += Ke[i, j];
+                    }
+                    B[l + sigma2 * (2 * n + 1) + sigma3] += Qe[i];
+                }
+            }
+            double E = 0.0005;
+            double[] result = new double[sizeofsystem];
+            result = SystemOfLinearEquations.SolveWithQRmethod(A, B, B.Length);
+
+            return result;
         }
+
         // нижче використовуйте клас Integral з Helpers щоб обчислити інтеграли
-        private void FillKe(ref double[,] Ke, double x1a, double x2a) // розмірність матриці Ke 9x9
+        // розмірність матриці Ke 9x9 
+        // (x1a,x2a) - лівий нижній кут
+        private void FillKe(ref double[,] Ke, double x1a, double x2a) // розмірність матриці Ke 9x9 
         { 
             // заповнюємо матрицю Ke для кокретної області [x1a,x1b]x[x2a,x2b]
             double E = 0.0005;
@@ -70,7 +102,7 @@ namespace FiniteElementMethodPE.FiniteElements
 					temp = Integral.CalculateWithHauseMethod(core, x1a, x1a + h, E, 5);
 					core1.SetParams(sigma2, x2a, sigma3, x2a);
 					temp *= Integral.CalculateWithHauseMethod(core1, x2a, x2a + h, E, 5);
-                    Ke[i, j] = temp;
+                    Ke[i, j] += temp;
                 }
             }
         }
