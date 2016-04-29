@@ -46,6 +46,7 @@ namespace FiniteElementMethodPE.FiniteElements
                 }
                 B[i] = 0;
             }
+
             for (var p = 0; p < n*n; p++)
             {
                 int sigma0 = p/n;
@@ -55,6 +56,7 @@ namespace FiniteElementMethodPE.FiniteElements
                 int l = sigma0*2*(2*n + 1) + 2*sigma1;
                 FillKe(ref Ke, x1a, x2a);
                 FillQe(ref Qe, x1a, x2a);
+
                 for (var i = 0; i < AllPointsNumber; i++)
                 {
                     int sigma2 = i/3;
@@ -69,14 +71,40 @@ namespace FiniteElementMethodPE.FiniteElements
                 }
             }
 
-            var result = new double[sizeofsystem];
-            result = SystemOfLinearEquations.SolveWithQRmethod(A, B, B.Length);
-
             // Write marix and right part to file
-            Printer.WriteLine("Results.txt","Matrix : ", false);
+            Printer.WriteLine("Results.txt", "Matrix : ", false);
             Printer.Write("Results.txt", A, sizeofsystem, sizeofsystem, true);
             Printer.WriteLine("Results.txt", "Right vector : ", true);
             Printer.Write("Results.txt", B, true);
+
+            // Delete all bourder points from matrix A and vector B
+            int oldRowSize = 2*n + 1;
+            int newRowSize = 2*n - 1;
+            int newSize = newRowSize * newRowSize;
+            double[,] innerA = new double[newSize, newSize];
+            double[] innerB = new double[newSize];
+
+            int indexI = 0, indexJ = 0;
+            for (int i = 0; i < sizeofsystem; i++)
+            {
+                if( i < oldRowSize) continue;
+                if( i >= sizeofsystem - oldRowSize) continue;
+                if((i % oldRowSize == 0) || (i% oldRowSize == oldRowSize-1)) continue;
+                indexJ = 0;
+                for (int j = 0; j < sizeofsystem; j++)
+                {
+                    if (j < oldRowSize) continue;
+                    if (j >= sizeofsystem - oldRowSize) continue;
+                    if ((j % oldRowSize == 0) || (j % oldRowSize == oldRowSize - 1)) continue;
+                    innerA[indexI, indexJ] = A[i, j];
+                    indexJ++;
+                }
+                innerB[indexI] = B[i];
+                indexI++;
+            }
+
+            //result = SystemOfLinearEquations.SolveWithQRmethod(A, B, B.Length);
+            double[] result = SystemOfLinearEquations.SolveWithQRmethod(innerA, innerB, innerB.Length);
 
             return result;
         }
