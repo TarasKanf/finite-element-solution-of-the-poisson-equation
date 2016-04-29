@@ -63,7 +63,7 @@ namespace FiniteElementMethodPE.FiniteElements
                     {
                         int sigma4 = (j) / 3;
                         int sigma5 = (j) % 3;
-                        A[l + sigma2 * (2 * n + 1) + sigma3, l + sigma4 * (2 * n + 1) + sigma5] += Ke[i, j];
+                        A[l+ sigma2 * (2 * n + 1) + sigma3, l+ sigma4 * (2 * n + 1) + sigma5] += Ke[i, j];
                     }
                     B[l + sigma2 * (2 * n + 1) + sigma3] += Qe[i];
                 }
