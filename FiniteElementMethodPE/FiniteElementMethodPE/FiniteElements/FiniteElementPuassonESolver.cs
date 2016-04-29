@@ -48,8 +48,8 @@ namespace FiniteElementMethodPE.FiniteElements
             }
             for (int p = 0; p < n * n; p++)
             {
-                int sigma0 = p / 3;
-                int sigma1 = p % 3;
+                int sigma0 = p / n;
+                int sigma1 = p % n;
                 double x1a = a1 + sigma1*h;
                 double x2a = a2 + sigma0*h;
                 int l = sigma0 * 2 * (2 * n + 1) + 2 * sigma1;
@@ -57,8 +57,8 @@ namespace FiniteElementMethodPE.FiniteElements
                 FillQe(ref Qe, x1a, x2a);
                 for (int i = 0; i < AllPointsNumber; i++)
                 {
-                    int sigma2 = (i+1) / 3;
-                    int sigma3 = (i+1) % 3;
+                    int sigma2 = (i) / 3;
+                    int sigma3 = (i) % 3;
                     for (int j = 0; j < AllPointsNumber; j++)
                     {
                         int sigma4 = (j) / 3;

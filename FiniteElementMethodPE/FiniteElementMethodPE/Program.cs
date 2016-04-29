@@ -12,12 +12,12 @@ namespace FiniteElementMethodPE
         static void Main(string[] args)
         {
             Console.WriteLine("Bottom left corner");
-            Console.Write(" x: ");
-            double x = int.Parse(Console.ReadLine());
-            Console.Write(" y: ");
-            double y = int.Parse(Console.ReadLine());
-            Console.Write(" H : ");
-            double h = int.Parse(Console.ReadLine());
+            Console.Write(" x: 0");
+            double x = 0;//int.Parse(Console.ReadLine());
+            Console.Write(" y: 0");
+            double y = 0;//int.Parse(Console.ReadLine());
+            Console.Write(" H: 1");
+            double h = 1;//int.Parse(Console.ReadLine());
             Console.Write(" N : ");
             int n = int.Parse(Console.ReadLine());
             FiniteElementPuassonESolver solver = new FiniteElementPuassonESolver(F, x, x+h, y, y+ h);
@@ -27,7 +27,7 @@ namespace FiniteElementMethodPE
             {
                 for (int j = 0; j < 2*n + 1; j++)
                 {
-                    Console.Write("{0:F8}  ", result[index]);
+                    Console.Write("{0:E}  ", result[index]);
                     index++;
                 }
                 Console.WriteLine();
