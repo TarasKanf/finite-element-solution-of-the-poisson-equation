@@ -63,6 +63,7 @@
     <Compile Include="Helpers\Core.cs" />
     <Compile Include="Helpers\ICore.cs" />
     <Compile Include="Helpers\Integral.cs" />
+    <Compile Include="Helpers\Printer.cs" />
     <Compile Include="Helpers\SystemOfEquations.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

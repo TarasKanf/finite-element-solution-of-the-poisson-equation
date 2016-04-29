@@ -12,11 +12,11 @@ namespace FiniteElementMethodPE
         static void Main(string[] args)
         {
             Console.WriteLine("Bottom left corner");
-            Console.Write(" x: 0");
+            Console.Write(" x: 0 \n");
             double x = 0;//int.Parse(Console.ReadLine());
-            Console.Write(" y: 0");
+            Console.Write(" y: 0 \n");
             double y = 0;//int.Parse(Console.ReadLine());
-            Console.Write(" H: 1");
+            Console.Write(" H: 1 \n");
             double h = 1;//int.Parse(Console.ReadLine());
             Console.Write(" N : ");
             int n = int.Parse(Console.ReadLine());
